@@ -22,7 +22,11 @@ export function extractClaudeMessage(container: Element): string | null {
 
 /** ユーザープロンプトを取得（アシスタントメッセージの直前のユーザーメッセージ） */
 export function extractClaudePromptBefore(container: Element): string | null {
-	let prev = container.previousElementSibling;
+	// container は div.group レベル。その親がメッセージレベルのラッパー
+	const messageWrapper = container.parentElement;
+	if (!messageWrapper) return null;
+
+	let prev = messageWrapper.previousElementSibling;
 	while (prev) {
 		const userMsg = prev.querySelector("[data-testid='user-message']");
 		if (userMsg) {
@@ -42,7 +46,20 @@ export function findClaudeActionBar(container: Element): Element | null {
 
 /** すべての Claude アシスタントレスポンスを取得 */
 export function getClaudeResponses(): Element[] {
-	return Array.from(
-		document.querySelectorAll("div[data-is-streaming]"),
-	).filter((el) => el.querySelector(".font-claude-response") !== null);
+	const streamingDivs = document.querySelectorAll("div[data-is-streaming]");
+	const containers: Element[] = [];
+	for (const el of streamingDivs) {
+		if (!el.querySelector(".font-claude-response")) continue;
+		// data-is-streaming → div.contents → div.group の順で上へ辿り、
+		// アクションバーを含む最初の祖先をコンテナとする
+		let ancestor: Element | null = el.parentElement;
+		while (ancestor && ancestor !== document.body) {
+			if (ancestor.querySelector("[aria-label='Message actions']")) {
+				containers.push(ancestor);
+				break;
+			}
+			ancestor = ancestor.parentElement;
+		}
+	}
+	return containers;
 }

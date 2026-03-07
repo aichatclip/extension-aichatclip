@@ -12,7 +12,7 @@ export default defineConfig({
 		permissions: ["storage"],
 		host_permissions: [
 			"https://api.aichatclip.com/*",
-			"http://localhost:*/*",
+			"*://localhost/*",
 			"https://aichatclip.com/*",
 			"https://gemini.google.com/*",
 			"https://grok.com/*",

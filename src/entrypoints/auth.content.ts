@@ -1,6 +1,10 @@
 export default defineContentScript({
 	matches: [
 		"https://aichatclip.com/auth/extension*",
+		"*://localhost/*",
+	],
+	includeGlobs: [
+		"https://aichatclip.com/auth/extension*",
 		"http://localhost:*/auth/extension*",
 	],
 	runAt: "document_idle",
