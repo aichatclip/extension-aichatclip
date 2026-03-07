@@ -1,21 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { sendMessage } from "../lib/messaging";
 import type { ClipSource } from "@aichatclip/shared";
+import { LogoIcon, CheckIcon, NgIcon, TimeAnimatedIcon } from "./icons";
 
 type ClipState = "idle" | "clipping" | "success" | "error";
 
-const STYLES: Record<ClipState, React.CSSProperties> = {
-	idle: { color: "#6b7280" },
-	clipping: { color: "#3b82f6", cursor: "wait" },
-	success: { color: "#22c55e" },
-	error: { color: "#ef4444" },
-};
+interface SiteStyle {
+	iconSize: number;
+	color: string;
+	errorColor: string;
+	buttonStyle: React.CSSProperties;
+	hoverStyle?: React.CSSProperties;
+}
 
-const ICONS: Record<ClipState, string> = {
-	idle: "\u{1F4CE}",
-	clipping: "\u23F3",
-	success: "\u2705",
-	error: "\u274C",
+const SITE_STYLES: Record<ClipSource, SiteStyle> = {
+	chatgpt: {
+		iconSize: 20,
+		color: "var(--token-text-secondary)",
+		errorColor: "#ef4444",
+		buttonStyle: {
+			width: 32,
+			height: 32,
+			borderRadius: 8,
+		},
+		hoverStyle: {
+			backgroundColor: "var(--token-bg-secondary)",
+		},
+	},
+	gemini: {
+		iconSize: 18,
+		color: "#1f1f1f",
+		errorColor: "#d93025",
+		buttonStyle: {
+			width: 32,
+			height: 32,
+			borderRadius: "50%",
+		},
+		hoverStyle: {
+			backgroundColor: "rgba(31,31,31,0.08)",
+		},
+	},
+	claude: {
+		iconSize: 20,
+		color: "#6b6e7b",
+		errorColor: "#d32f2f",
+		buttonStyle: {},
+	},
+	grok: {
+		iconSize: 20,
+		color: "#71767b",
+		errorColor: "#f4212e",
+		buttonStyle: {},
+	},
 };
 
 interface ClipButtonProps {
@@ -27,14 +63,30 @@ interface ClipButtonProps {
 
 export function ClipButton({ article, source, extractMessage, extractPrompt }: ClipButtonProps) {
 	const [state, setState] = useState<ClipState>("idle");
+	const [timeFrame, setTimeFrame] = useState<number>(0);
+	const [hovered, setHovered] = useState(false);
+	const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
+
+	const site = SITE_STYLES[source];
+
+	useEffect(() => {
+		if (state === "clipping") {
+			setTimeFrame(0);
+			intervalRef.current = setInterval(() => {
+				setTimeFrame((f) => f + 1);
+			}, 500);
+		} else {
+			clearInterval(intervalRef.current);
+		}
+		return () => clearInterval(intervalRef.current);
+	}, [state]);
 
 	const handleClip = async () => {
-		if (state === "clipping") return;
+		if (state !== "idle") return;
 
 		const content = extractMessage(article);
 		if (!content) {
 			setState("error");
-			setTimeout(() => setState("idle"), 2000);
 			return;
 		}
 
@@ -50,37 +102,43 @@ export function ClipButton({ article, source, extractMessage, extractPrompt }: C
 		} catch {
 			setState("error");
 		}
-		setTimeout(() => setState("idle"), 2000);
 	};
+
+	const iconColor = state === "error" ? site.errorColor : site.color;
 
 	return (
 		<button
 			type="button"
 			onClick={handleClip}
-			disabled={state === "clipping"}
+			disabled={state !== "idle"}
 			title="Clip this response"
 			style={{
-				background: "none",
+				backgroundColor: hovered && state === "idle" && site.hoverStyle?.backgroundColor
+					? site.hoverStyle.backgroundColor
+					: "transparent",
 				border: "none",
 				cursor: state === "clipping" ? "wait" : "pointer",
-				padding: "4px",
-				fontSize: "16px",
+				padding: 0,
 				lineHeight: 1,
 				display: "inline-flex",
 				alignItems: "center",
 				justifyContent: "center",
-				opacity: state === "idle" ? 0.6 : 1,
-				transition: "opacity 0.2s",
-				...STYLES[state],
+				color: iconColor,
+				opacity: 1,
+				transition: "background-color 0.2s",
+				...site.buttonStyle,
 			}}
-			onMouseEnter={(e) => {
-				if (state === "idle") e.currentTarget.style.opacity = "1";
+			onMouseEnter={() => {
+				setHovered(true);
 			}}
-			onMouseLeave={(e) => {
-				if (state === "idle") e.currentTarget.style.opacity = "0.6";
+			onMouseLeave={() => {
+				setHovered(false);
 			}}
 		>
-			{ICONS[state]}
+			{state === "idle" && <LogoIcon size={site.iconSize} />}
+			{state === "clipping" && <TimeAnimatedIcon frame={timeFrame} size={site.iconSize} />}
+			{state === "success" && <CheckIcon size={site.iconSize} />}
+			{state === "error" && <NgIcon size={site.iconSize} />}
 		</button>
 	);
 }

@@ -12,70 +12,250 @@ body {
 	background: #fff;
 }
 
-.popup h1 {
+/* Header */
+.popup-header {
+	margin-bottom: 16px;
+}
+
+.popup-header-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	text-decoration: none;
+	color: #1a1a1a;
+}
+
+.popup-header-link:hover {
+	opacity: 0.7;
+}
+
+.popup-header h1 {
 	font-size: 18px;
-	margin-bottom: 12px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+/* Sections */
+.section {
+	margin-bottom: 4px;
+}
+
+.section-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #888;
+	margin-bottom: 8px;
 }
 
 .status {
-	font-size: 14px;
+	font-size: 13px;
 	margin-bottom: 8px;
-	color: #6b7280;
+	color: #888;
 }
 
 .status.success {
-	color: #22c55e;
+	color: #1a1a1a;
+	font-weight: 500;
+}
+
+.status.success::before {
+	content: "";
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #1a1a1a;
+	margin-right: 6px;
+	vertical-align: middle;
 }
 
 hr {
 	border: none;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid #e5e5e5;
 	margin: 12px 0;
 }
 
+/* Buttons */
 .btn {
 	display: block;
 	width: 100%;
 	padding: 8px 12px;
-	border: 1px solid #d1d5db;
+	border: 1px solid #d4d4d4;
 	border-radius: 6px;
-	font-size: 14px;
+	font-size: 13px;
 	cursor: pointer;
 	background: #fff;
-	color: #374151;
-	margin-bottom: 8px;
+	color: #1a1a1a;
+	margin-bottom: 6px;
+	transition: background 0.15s;
+}
+
+.btn:hover {
+	background: #f5f5f5;
 }
 
 .btn.primary {
-	background: #3b82f6;
+	background: #1a1a1a;
 	color: #fff;
-	border-color: #3b82f6;
+	border-color: #1a1a1a;
 }
 
 .btn.primary:hover {
-	background: #2563eb;
+	background: #333;
 }
 
-.btn.secondary:hover {
-	background: #f3f4f6;
-}
-
-.settings-form {
-	margin-top: 8px;
-}
-
-.settings-form label {
-	display: block;
-	font-size: 12px;
-	color: #6b7280;
-	margin-bottom: 4px;
-}
-
-.settings-form input {
-	width: 100%;
-	padding: 6px 8px;
-	border: 1px solid #d1d5db;
+.btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border: 1px solid #d4d4d4;
 	border-radius: 4px;
-	font-size: 13px;
+	background: #fff;
+	color: #1a1a1a;
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.btn-icon:hover {
+	background: #f5f5f5;
+}
+
+.btn-remove {
+	border-color: transparent;
+	color: #999;
+}
+
+.btn-remove:hover {
+	color: #1a1a1a;
+	background: #f5f5f5;
+}
+
+/* Webhook Settings */
+.webhook-settings {
+	margin: 0;
+}
+
+.webhook-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	margin-bottom: 8px;
 }
+
+.webhook-title {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #888;
+}
+
+.webhook-count {
+	font-size: 12px;
+	font-weight: 600;
+	color: #888;
+	min-width: 20px;
+	height: 20px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #f0f0f0;
+	border-radius: 10px;
+	padding: 0 6px;
+}
+
+.btn-add-webhook {
+	margin-top: 2px;
+}
+
+.webhook-item {
+	border: 1px solid #e5e5e5;
+	border-radius: 6px;
+	padding: 8px;
+	margin-bottom: 6px;
+}
+
+.webhook-item-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 6px;
+}
+
+.webhook-name {
+	flex: 1;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+	font-size: 12px;
+	color: #1a1a1a;
+	background: #fff;
+}
+
+.webhook-name:focus,
+.webhook-url:focus {
+	outline: none;
+	border-color: #1a1a1a;
+}
+
+.webhook-url {
+	width: 100%;
+	padding: 4px 6px;
+	border: 1px solid #e5e5e5;
+	border-radius: 4px;
+	font-size: 12px;
+	font-family: ui-monospace, monospace;
+	color: #1a1a1a;
+	background: #fff;
+}
+
+/* Toggle */
+.webhook-toggle {
+	position: relative;
+	display: inline-block;
+	width: 32px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+.webhook-toggle input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.toggle-slider {
+	position: absolute;
+	inset: 0;
+	background: #d4d4d4;
+	border-radius: 9px;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.toggle-slider::before {
+	content: "";
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	left: 2px;
+	bottom: 2px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.2s;
+}
+
+.webhook-toggle input:checked + .toggle-slider {
+	background: #1a1a1a;
+}
+
+.webhook-toggle input:checked + .toggle-slider::before {
+	transform: translateX(14px);
+}
+

@@ -4,6 +4,7 @@ import {
 	clearSessionToken,
 	getApiBaseUrl,
 	getSessionToken,
+	getWebhooks,
 	setSessionToken,
 } from "../lib/storage";
 
@@ -22,15 +23,33 @@ export default defineBackground(() => {
 	);
 
 	onMessage("clipContent", async ({ data }) => {
+		const payload = {
+			source: data.source,
+			content: data.content,
+			prompt: data.prompt,
+		};
+
+		// Send to webhooks (fire and forget)
+		getWebhooks().then((hooks) => {
+			for (const hook of hooks) {
+				if (hook.enabled && hook.url) {
+					fetch(hook.url, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(payload),
+					}).catch(() => {});
+				}
+			}
+		});
+
+		// Send to AIChatClip API
 		try {
+			const token = await getSessionToken();
+			if (!token) {
+				return { success: true, clipId: undefined };
+			}
 			const client = await createApiClient();
-			const res = await client.api.clips.$post({
-				json: {
-					source: data.source,
-					content: data.content,
-					prompt: data.prompt,
-				},
-			});
+			const res = await client.api.clips.$post({ json: payload });
 			if (!res.ok) {
 				const text = await res.text();
 				return { success: false, error: text };

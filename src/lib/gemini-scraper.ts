@@ -34,10 +34,13 @@ export function extractGeminiPromptBefore(container: Element): string | null {
 
 /** レスポンスコンテナ内のアクションバーを探す（ClipButton 注入先） */
 export function findGeminiActionBar(container: Element): Element | null {
+	const buttons = container.querySelector(".buttons-container-v2");
+	if (buttons) return buttons;
+
+	// フォールバック
 	const footer = container.querySelector(".response-container-footer");
 	if (footer) return footer;
 
-	// フォールバック: conversation-actions-container
 	const actions = container.querySelector(".conversation-actions-container");
 	return actions ?? null;
 }
