@@ -1,6 +1,11 @@
 import { createRoot } from "react-dom/client";
 import { ClipButton } from "../../components/ClipButton";
-import { findActionBar, getAssistantArticles } from "../../lib/scraper";
+import {
+	findActionBar,
+	getAssistantArticles,
+	extractAssistantMessage,
+	extractPromptBefore,
+} from "../../lib/scraper";
 
 const MARKER = "data-aichatclip";
 
@@ -15,7 +20,14 @@ function injectClipButton(article: Element) {
 	container.setAttribute("data-aichatclip-button", "true");
 	actionBar.appendChild(container);
 
-	createRoot(container).render(<ClipButton article={article} />);
+	createRoot(container).render(
+		<ClipButton
+			article={article}
+			source="chatgpt"
+			extractMessage={extractAssistantMessage}
+			extractPrompt={extractPromptBefore}
+		/>,
+	);
 }
 
 export function injectAll() {

@@ -1,8 +1,9 @@
 import { defineExtensionMessaging } from "@webext-core/messaging";
+import type { ClipSource } from "@aichatclip/shared";
 
 interface ProtocolMap {
 	clipContent(data: {
-		source: "chatgpt";
+		source: ClipSource;
 		content: string;
 		prompt?: string;
 	}): { success: boolean; clipId?: string; error?: string };

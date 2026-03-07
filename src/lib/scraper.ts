@@ -1,4 +1,42 @@
-/** ChatGPT DOM からアシスタントメッセージのテキストを抽出する */
+import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
+
+export const turndown = new TurndownService({
+	headingStyle: "atx",
+	codeBlockStyle: "fenced",
+	hr: "---",
+	bulletListMarker: "*",
+});
+
+turndown.use(gfm);
+
+// <li> 内の <p> ラッパーを除去してコンパクトなリストにする
+turndown.addRule("listItemCompact", {
+	filter: (node) => node.tagName === "LI",
+	replacement: (content, node, options) => {
+		const cleaned = content
+			.replace(/^\n+/, "")
+			.replace(/\n+$/, "")
+			.replace(/\n\n+/g, "\n");
+
+		const parent = node.parentNode as Element | null;
+		const prefix =
+			parent && parent.tagName === "OL"
+				? `${Array.from(parent.children).indexOf(node as Element) + 1}. `
+				: `${options.bulletListMarker} `;
+
+		return prefix + cleaned.replace(/\n/g, "\n  ") + "\n";
+	},
+});
+
+// ChatGPT UI のボタン等を除去
+turndown.remove((node) => {
+	if (node.tagName === "BUTTON") return true;
+	if ((node as Element).classList?.contains("sticky")) return true;
+	return false;
+});
+
+/** ChatGPT DOM からアシスタントメッセージを Markdown として抽出する */
 export function extractAssistantMessage(article: Element): string | null {
 	// data-message-author-role 属性で判定
 	const authorRole = article.querySelector("[data-message-author-role]");
@@ -12,7 +50,7 @@ export function extractAssistantMessage(article: Element): string | null {
 		article.querySelector("[data-message-author-role='assistant']");
 	if (!markdown) return null;
 
-	return markdown.textContent?.trim() ?? null;
+	return turndown.turndown(markdown.innerHTML).trim() || null;
 }
 
 /** ユーザープロンプトを取得（アシスタントメッセージの直前のユーザーメッセージ） */
@@ -58,6 +96,6 @@ export function getAssistantArticles(): Element[] {
 	// フォールバック: [data-message-author-role="assistant"] の祖先 article
 	const assistantRoles = document.querySelectorAll("[data-message-author-role='assistant']");
 	return Array.from(assistantRoles)
-		.map((el) => el.closest("article"))
+		.map((el) => el.closest("article") as Element | null)
 		.filter((el): el is Element => el !== null);
 }

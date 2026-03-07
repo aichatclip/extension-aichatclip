@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { sendMessage } from "../lib/messaging";
-import { extractAssistantMessage, extractPromptBefore } from "../lib/scraper";
+import type { ClipSource } from "@aichatclip/shared";
 
 type ClipState = "idle" | "clipping" | "success" | "error";
 
@@ -18,13 +18,20 @@ const ICONS: Record<ClipState, string> = {
 	error: "\u274C",
 };
 
-export function ClipButton({ article }: { article: Element }) {
+interface ClipButtonProps {
+	article: Element;
+	source: ClipSource;
+	extractMessage: (article: Element) => string | null;
+	extractPrompt: (article: Element) => string | null;
+}
+
+export function ClipButton({ article, source, extractMessage, extractPrompt }: ClipButtonProps) {
 	const [state, setState] = useState<ClipState>("idle");
 
 	const handleClip = async () => {
 		if (state === "clipping") return;
 
-		const content = extractAssistantMessage(article);
+		const content = extractMessage(article);
 		if (!content) {
 			setState("error");
 			setTimeout(() => setState("idle"), 2000);
@@ -33,9 +40,9 @@ export function ClipButton({ article }: { article: Element }) {
 
 		setState("clipping");
 		try {
-			const prompt = extractPromptBefore(article) ?? undefined;
+			const prompt = extractPrompt(article) ?? undefined;
 			const result = await sendMessage("clipContent", {
-				source: "chatgpt",
+				source,
 				content,
 				prompt,
 			});
