@@ -5,9 +5,26 @@ import { LogoIcon, CheckIcon, NgIcon, TimeAnimatedIcon } from "./icons";
 
 type ClipState = "idle" | "clipping" | "success" | "error";
 
+function cleanChatTitle(title: string, source: ClipSource): string | undefined {
+	switch (source) {
+		case "claude":
+			return title.replace(/ - Claude$/, "").trim() || undefined;
+		case "gemini": {
+			const titleEl = document.querySelector('[data-test-id="conversation-title"]');
+			const domTitle = titleEl?.textContent?.trim();
+			return domTitle || undefined;
+		}
+		case "grok":
+			return title.replace(/ - Grok$/, "").trim() || undefined;
+		default:
+			return title || undefined;
+	}
+}
+
 interface SiteStyle {
 	iconSize: number;
 	color: string;
+	hoverColor?: string;
 	errorColor: string;
 	buttonStyle: React.CSSProperties;
 	hoverStyle?: React.CSSProperties;
@@ -16,7 +33,7 @@ interface SiteStyle {
 const SITE_STYLES: Record<ClipSource, SiteStyle> = {
 	chatgpt: {
 		iconSize: 20,
-		color: "var(--token-text-secondary)",
+		color: "var(--text-secondary)",
 		errorColor: "#ef4444",
 		buttonStyle: {
 			width: 32,
@@ -24,12 +41,12 @@ const SITE_STYLES: Record<ClipSource, SiteStyle> = {
 			borderRadius: 8,
 		},
 		hoverStyle: {
-			backgroundColor: "var(--token-bg-secondary)",
+			backgroundColor: "var(--bg-secondary)",
 		},
 	},
 	gemini: {
 		iconSize: 18,
-		color: "#1f1f1f",
+		color: "light-dark(#1f1f1f, #c4c7c5)",
 		errorColor: "#d93025",
 		buttonStyle: {
 			width: 32,
@@ -37,20 +54,36 @@ const SITE_STYLES: Record<ClipSource, SiteStyle> = {
 			borderRadius: "50%",
 		},
 		hoverStyle: {
-			backgroundColor: "rgba(31,31,31,0.08)",
+			backgroundColor: "light-dark(rgba(31,31,31,0.08), #1f2126)",
 		},
 	},
 	claude: {
 		iconSize: 20,
-		color: "#6b6e7b",
+		color: "hsl(var(--text-500))",
+		hoverColor: "hsl(var(--text-100))",
 		errorColor: "#d32f2f",
-		buttonStyle: {},
+		buttonStyle: {
+			width: 32,
+			height: 32,
+			borderRadius: 6,
+		},
+		hoverStyle: {
+			backgroundColor: "light-dark(hsl(48 25% 92.2%), hsl(60 2.6% 7.6%))",
+		},
 	},
 	grok: {
-		iconSize: 20,
-		color: "#71767b",
+		iconSize: 16,
+		color: "light-dark(hsl(0 0% 39%), hsl(0 0% 62%))",
+		hoverColor: "var(--fg-primary)",
 		errorColor: "#f4212e",
-		buttonStyle: {},
+		buttonStyle: {
+			width: 32,
+			height: 32,
+			borderRadius: "50%",
+		},
+		hoverStyle: {
+			backgroundColor: "var(--button-ghost-hover)",
+		},
 	},
 };
 
@@ -93,10 +126,14 @@ export function ClipButton({ article, source, extractMessage, extractPrompt }: C
 		setState("clipping");
 		try {
 			const prompt = extractPrompt(article) ?? undefined;
+			const url = window.location.href;
+			const chatTitle = cleanChatTitle(document.title, source);
 			const result = await sendMessage("clipContent", {
 				source,
 				content,
 				prompt,
+				url,
+				chatTitle,
 			});
 			setState(result.success ? "success" : "error");
 		} catch {
@@ -104,7 +141,8 @@ export function ClipButton({ article, source, extractMessage, extractPrompt }: C
 		}
 	};
 
-	const iconColor = state === "error" ? site.errorColor : site.color;
+	const baseColor = hovered && site.hoverColor ? site.hoverColor : site.color;
+	const iconColor = state === "error" ? site.errorColor : baseColor;
 
 	return (
 		<button

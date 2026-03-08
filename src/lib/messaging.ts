@@ -6,6 +6,8 @@ interface ProtocolMap {
 		source: ClipSource;
 		content: string;
 		prompt?: string;
+		url?: string;
+		chatTitle?: string;
 	}): { success: boolean; clipId?: string; error?: string };
 	getAuthStatus(): { authenticated: boolean };
 }

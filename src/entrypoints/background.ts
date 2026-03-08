@@ -25,8 +25,11 @@ export default defineBackground(() => {
 	onMessage("clipContent", async ({ data }) => {
 		const payload = {
 			source: data.source,
-			content: data.content,
+			chatTitle: data.chatTitle,
 			prompt: data.prompt,
+			content: data.content,
+			url: data.url,
+			clippedAt: new Date().toISOString(),
 		};
 
 		// Send to webhooks (fire and forget)

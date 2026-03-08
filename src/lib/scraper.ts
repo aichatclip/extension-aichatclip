@@ -69,14 +69,16 @@ export function extractPromptBefore(article: Element): string | null {
 /** アシスタントメッセージのアクションバーを探す（ClipButton注入先） */
 export function findActionBar(article: Element): Element | null {
 	// ChatGPTのアクションバー: コピー/いいねボタンが並ぶ領域
-	// data-testid を優先
-	const testIdBar = article.querySelector(
-		"[data-testid='conversation-turn-action-button']",
-	)?.parentElement;
-	if (testIdBar) return testIdBar;
+	// data-testid を優先（copy-turn-action-button等）
+	const actionButton = article.querySelector(
+		"[data-testid$='turn-action-button']",
+	);
+	if (actionButton) {
+		return actionButton.closest("[data-testid$='turn-action-button']")?.parentElement ?? null;
+	}
 
-	// フォールバック: 最後の flex コンテナ（ボタン群がある領域）
-	const buttons = article.querySelectorAll("button");
+	// フォールバック: 最後のネイティブbutton（ClipButton自体を除外）
+	const buttons = article.querySelectorAll("button:not([data-aichatclip-button] button):not([title='Clip this response'])");
 	if (buttons.length === 0) return null;
 	const lastButton = buttons[buttons.length - 1];
 	return lastButton?.parentElement ?? null;

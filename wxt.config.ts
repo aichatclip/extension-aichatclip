@@ -16,12 +16,7 @@ export default defineConfig({
 		},
 		permissions: ["storage"],
 		host_permissions: [
-			"https://api.aichatclip.com/*",
-			"*://localhost/*",
-			"https://aichatclip.com/*",
-			"https://gemini.google.com/*",
-			"https://grok.com/*",
-			"https://claude.ai/*",
+			"<all_urls>",
 		],
 	},
 });

@@ -6,9 +6,9 @@
 	"scripts": {
 		"dev": "wxt",
 		"dev:firefox": "wxt --browser firefox",
-		"build": "wxt build",
+		"build": "wxt build && wxt build --browser firefox",
+		"build:chrome": "wxt build",
 		"build:firefox": "wxt build --browser firefox",
-		"build:all": "wxt build && wxt build --browser firefox",
 		"check": "tsc --noEmit"
 	},
 	"dependencies": {

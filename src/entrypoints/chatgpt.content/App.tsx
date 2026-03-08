@@ -11,10 +11,11 @@ const MARKER = "data-aichatclip";
 
 function injectClipButton(article: Element) {
 	if (article.hasAttribute(MARKER)) return;
-	article.setAttribute(MARKER, "true");
 
 	const actionBar = findActionBar(article);
 	if (!actionBar) return;
+
+	article.setAttribute(MARKER, "true");
 
 	const container = document.createElement("span");
 	container.setAttribute("data-aichatclip-button", "true");
@@ -46,7 +47,13 @@ export function observeNewMessages(ctx: { onInvalidated: (cb: () => void) => voi
 		subtree: true,
 	});
 
+	// MutationObserverで拾えないケースの補完ポーリング
+	const interval = setInterval(() => {
+		injectAll();
+	}, 2000);
+
 	ctx.onInvalidated(() => {
 		observer.disconnect();
+		clearInterval(interval);
 	});
 }

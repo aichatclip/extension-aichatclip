@@ -18,7 +18,17 @@ function injectClipButton(container: Element) {
 
 	const el = document.createElement("span");
 	el.setAttribute("data-aichatclip-button", "true");
-	actionBar.appendChild(el);
+	// ネイティブボタンと同じ表示/非表示の挙動に合わせる
+	el.className = "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 [.last-response_&]:opacity-100";
+
+	// 標準ボタン群の直後に挿入（モデル名やソース情報より前）
+	const buttons = actionBar.querySelectorAll(":scope > [data-state], :scope > button");
+	const lastButton = buttons[buttons.length - 1];
+	if (lastButton) {
+		lastButton.insertAdjacentElement("afterend", el);
+	} else {
+		actionBar.appendChild(el);
+	}
 
 	createRoot(el).render(
 		<ClipButton
