@@ -2,8 +2,10 @@ import { turndown } from "./scraper";
 
 /** Claude DOM からアシスタントメッセージを Markdown として抽出する */
 export function extractClaudeMessage(container: Element): string | null {
-	// .standard-markdown を直接取得して思考サマリー部分を回避
-	const markdown = container.querySelector(".standard-markdown");
+	// 複数の .standard-markdown がある場合（ツール使用セクション等）、
+	// 本文は最後に配置されるため最後の要素を取得する
+	const markdowns = container.querySelectorAll(".standard-markdown");
+	const markdown = markdowns[markdowns.length - 1];
 	if (!markdown) return null;
 
 	return turndown.turndown(markdown.innerHTML).trim() || null;
