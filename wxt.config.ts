@@ -16,7 +16,21 @@ export default defineConfig({
 		},
 		permissions: ["storage"],
 		host_permissions: [
-			"<all_urls>",
+			"https://chatgpt.com/*",
+			"https://chat.openai.com/*",
+			"https://claude.ai/*",
+			"https://gemini.google.com/*",
+			"https://grok.com/*",
+			"https://aichatclip.com/*",
 		],
+		browser_specific_settings: {
+			gecko: {
+				id: "extension@aichatclip.com",
+				strict_min_version: "140.0",
+				data_collection_permissions: {
+					required: ["websiteContent", "browsingActivity"],
+				},
+			},
+		},
 	},
 });
