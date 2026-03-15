@@ -71,7 +71,7 @@ export default defineBackground(() => {
 				return { authenticated: false };
 			}
 			const baseUrl = await getApiBaseUrl();
-			const res = await fetch(`${baseUrl}/api/auth/get-session`, {
+			const res = await fetch(`${baseUrl}/api/me`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (!res.ok) {
